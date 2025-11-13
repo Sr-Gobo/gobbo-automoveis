@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gobbo Automóveis</title>
+  <style>
+    /* ===== RESET E BASE ===== */
+    * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+    html,body { height: 100%; }
+
+    header{
+      margin-top: 70px;
+    }
+
+    body {
+      margin: 0;
+      background-color: #000;
+      color: #fff;
+      padding-top: 70px; /* para não esconder conteúdo sob o topo fixo */
+    }
+
+    /* ===== TOPO FIXO ===== */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      background-color: rgba(0,0,0,0.95);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding: 0 40px;
+      border-bottom: 2px solid #d4af37;
+      z-index:1000;
+      box-shadow: 0 0 10px rgba(212,175,55,0.25);
+    }
+
+    .logo { color:#d4af37; font-size:1.6rem; font-weight:700; letter-spacing:1px; }
+
+    .btn-contato {
+      background-color:#d4af37;
+      color:#000;
+      font-weight:700;
+      padding:10px 25px;
+      border-radius:25px;
+      text-decoration:none;
+      transition:all .25s ease;
+    }
+    .btn-contato:hover { background:#fff; transform:scale(1.04); box-shadow:0 0 12px #d4af37; }
+
+    header video { width:100%; display:block; object-fit:cover; max-height:420px; }
+
+    /* ===== CONTAINER/GRID DE CARROS (OCUPA QUASE TODA A LARGURA) ===== */
+    .container-carros {
+      width: calc(100% - 80px);        /* ocupa praticamente toda a largura da viewport (com 40px margens laterais) */
+      max-width: 1600px;               /* limite máximo para não esticar demais em telas gigantes */
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+
+    .carros {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 colunas, cada uma se expande */
+      gap: 28px; /* espaçamento entre colunas e linhas */
+      align-items: stretch; /* faz as colunas terem altura similar */
+      justify-items: center;
+      width:100%;
+    }
+
+    /* cada card ocupa todo o espaço da coluna (para "preencher a linha") */
+    .carros .card {
+      width: 100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+    }
+
+    .card button {
+      background-color:#111;
+      color:#fff;
+      border:2px solid #d4af37;
+      border-radius:28px;
+      padding:14px;
+      width:100%;
+      cursor:pointer;
+      transition: all .25s ease;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:center;
+      justify-content:flex-start;
+    }
+    .card button:hover { background:#d4af37; color:#000; transform:translateY(-3px); box-shadow:0 8px 30px rgba(212,175,55,0.15); }
+
+    /* imagem dentro do botão ocupa o máximo da coluna mantendo proporção */
+    .card button img {
+      width:100%;
+      height:auto;
+      border-radius:14px;
+      display:block;
+    }
+
+    .card button h1 {
+      font-size:1.05rem;
+      color:#d4af37;
+      margin:0;
+      line-height:1.2;
+    }
+
+    /* ===== DIALOG (MODAL) ===== */
+    dialog {
+      width: 460px;
+      max-width: 94%;
+      background-color:#111;
+      color:#fff;
+      border:2px solid #d4af37;
+      border-radius:18px;
+      padding:22px;
+      box-shadow:0 10px 40px rgba(212,175,55,0.18);
+      text-align:center;
+      animation: fadeIn .28s ease;
+    }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(-6px) scale(.98)} to {opacity:1; transform:none} }
+
+    dialog img { width:100%; height:auto; border-radius:12px; margin:14px 0; }
+    dialog h2 { color:#d4af37; margin: 6px 0 12px; }
+    dialog p, dialog h1 { color:#fff; margin:6px 0; }
+
+    dialog a button {
+      background:#d4af37; color:#000; border:none; padding:12px; border-radius:12px; width:100%; font-weight:700;
+    }
+    dialog .close {
+      margin-top:10px; background:transparent; border:1px solid #d4af37; color:#d4af37; padding:10px 12px; border-radius:12px; width:100%;
+    }
+    dialog .close:hover { background:#d4af37; color:#000; }
+
+    /* ===== BOTÃO ENCONTRE VENDEDOR ===== */
+    .encontre-vendedor { text-align:center; margin:50px 0 90px; }
+    #btnVendedor {
+      background:#d4af37; color:#000; font-weight:800; font-size:1.15rem; padding:16px 40px; border-radius:30px; border:none; cursor:pointer;
+      box-shadow:0 6px 30px rgba(212,175,55,0.18); transition:all .22s ease;
+    }
+    #btnVendedor:hover { transform:translateY(-4px); background:#fff; }
+
+    /* ===== SWEETALERT STYLES (garante opções visíveis) ===== */
+    .swal2-popup { background:#000 !important; color:#fff !important; border: 1px solid #d4af37 !important; }
+    .swal2-popup .swal2-select, .swal2-popup select, .swal2-popup input, .swal2-popup textarea {
+      background:#222 !important; color:#fff !important; border:1px solid #d4af37 !important; border-radius:8px !important;
+    }
+    .swal2-popup select option { background:#222; color:#fff; }
+
+    /* ===== RESPONSIVIDADE ===== */
+    @media (max-width: 1100px) {
+      .container-carros { width: calc(100% - 48px); }
+      .carros { gap:22px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .container-carros { width: calc(100% - 32px); padding: 20px 0; }
+      .carros { grid-template-columns: 1fr; gap:18px; padding:0; }
+      header video { max-height:260px; object-fit:cover; }
+      .topbar { padding: 0 18px; }
+    }
+    /* ===== FOOTER ===== */
+footer {
+  background-color: #000; /* fundo preto elegante */
+  color: #d4af37;         /* texto dourado */
+  text-align: center;
+  padding: 25px 15px;
+  border-top: 2px solid #d4af37;
+  box-shadow: 0 -4px 15px rgba(212,175,55,0.15);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 10;
+}
+
+footer p {
+  margin: 0;
+  color: #d4af37;
+  transition: color 0.3s ease;
+}
+
+footer p:hover {
+  color: #fff;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 720px) {
+  footer {
+    font-size: 0.9rem;
+    padding: 20px 10px;
+  }
+}
+
+
+
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="topbar">
+      <div class="logo">GOBBO AUTOMÓVEIS</div>
+      <div class="menu"><a class="btn-contato" href="./contato.html">Contato</a></div>
+    </nav>
+    <video autoplay muted loop src="./imgs/Confiança.mp4"></video>
+  </header>
+
+  <!-- container que ocupa praticamente toda a linha -->
+  <div class="container-carros">
+    <section class="carros">
+      <!-- 1 -->
+      <div class="card">
+        <button data-modal="modal1">
+          <img src="./imgs/Haval H9.png" alt="Haval H9">
+          <h1>Haval H9<br>R$ 300.000,00</h1>
+        </button>
+        <dialog id="modal1">
+          <h2>Haval H9</h2>
+          <img src="./imgs/Haval H9.png" alt="Haval H9">
+          <h1>Preço:<br>R$ 300.000,00</h1>
+          <a href="./PAGcarros/h9.html"><button>+ Informações</button></a>
+          <button class="close">Fechar</button>
+        </dialog>
+      </div>
+
+      <!-- 2 -->
+      <div class="card">
+        <button data-modal="modal2">
+          <img src="./imgs/Lecar Campo.png" alt="Lecar Campo">
+          <h1>Lecar Campo<br>R$ 150.000,00</h1>
+        </button>
+        <dialog id="modal2">
+          <h2>Lecar Campo</h2>
+          <img src="./imgs/Lecar Campo.png" alt="Lecar Campo">
+          <h1>Preço:<br>R$ 150.000,00</h1>
+          <a href="./PAGcarros/lecar.html"><button>+ Informações</button></a>
+          <button class="close">Fechar</button>
+        </dialog>
+      </div>
+
+      <!-- 3 -->
+      <div class="card">
+        <button data-modal="modal3">
+          <img src="./imgs/Cayenne Turbo GT.png" alt="Cayenne Turbo GT">
+          <h1>Cayenne Turbo GT<br>R$ 1.500.000,00</h1>
+        </button>
+        <dialog id="modal3">
+          <h2>Cayenne Turbo GT</h2>
+          <img src="./imgs/Cayenne Turbo GT.png" alt="Cayenne Turbo GT">
+          <h1>Preço:<br>R$ 1.500.000,00</h1>
+          <a href="./PAGcarros/cayenne.html"><button>+ Informações</button></a>
+          <button class="close">Fechar</button>
+        </dialog>
+      </div>
+
+      <!-- 4 -->
+      <div class="card">
+        <button data-modal="modal4">
+          <img src="./imgs/Cullinan.png" alt="Rolls-Royce Cullinan">
+          <h1>Rolls-Royce Black Badge Cullinan<br>R$ 8.100.000,00</h1>
+        </button>
+        <dialog id="modal4">
+          <h2>Rolls-Royce Black Badge Cullinan</h2>
+          <img src="./imgs/Cullinan.png" alt="Rolls-Royce Cullinan">
+          <h1>Preço:<br>R$ 8.100.000,00</h1>
+          <a href="./PAGcarros/cullinan.html"><button>+ Informações</button></a>
+          <button class="close">Fechar</button>
+        </dialog>
+      </div>
+
+      <!-- 5 -->
+      <div class="card" id="ph">
+        <button data-modal="modal5" style="height: 110%;">
+          <img src="./imgs/Phantom.png" alt="Rolls-Royce Phantom" style="height: 110%;">
+          <h1>Rolls-Royce Phantom<br>R$ 3.000.000,00</h1>
+        </button>
+        <dialog id="modal5">
+          <h2>Rolls-Royce Phantom</h2>
+          <img src="./imgs/Phantom.png" alt="Rolls-Royce Phantom">
+          <h1>Preço:<br>R$ 3.000.000,00</h1>
+          <a href="./PAGcarros/phantom.html"><button>+ Informações</button></a>
+          <button class="close">Fechar</button>
+        </dialog>
+      </div>
+
+      <!-- 6 -->
+      <div class="card">
+        <button data-modal="modal6">
+          <img src="./imgs/AMG G 63-Grand-Ediition.png" alt="AMG G 63 Grand Edition">
+          <h1>Mercedes-AMG G 63 Grand Edition<br>R$ 2.100.000,00</h1>
+        </button>
+        <dialog id="modal6">
+          <h2>Mercedes-AMG G 63 Grand Edition</h2>
+          <img src="./imgs/AMG G 63-Grand-Ediition.png" alt="AMG G 63">
+          <h1>Preço:<br>R$ 2.100.000,00</h1>
+          <a href="./PAGcarros/AMG_G_63.html"><button>+ Informações</button></a>
+          <button class="close">Fechar</button>
+        </dialog>
+      </div>
+
+      <!-- 7 -->
+      <div class="card" id="">
+        <button data-modal="modal7">
+          <img src="./imgs/Maybach GLS 600.png" alt="Maybach GLS 600">
+          <h1>Maybach GLS 600<br>R$ 1.700.000,00</h1>
+        </button>
+        <dialog id="modal7">
+          <h2>Maybach GLS 600</h2>
+          <img src="./imgs/Maybach GLS 600.png" alt="Maybach GLS 600">
+          <h1>Preço:<br>R$ 1.700.000,00</h1>
+          <a href="./PAGcarros/maybach.html"><button>+ Informações</button></a>
+          <button class="close">Fechar</button>
+        </dialog>
+      </div>
+
+      <!-- 8 -->
+      <div class="card">
+        <button data-modal="modal8">
+          <img src="./imgs/Lambo Urus.png" alt="Lamborghini Urus">
+          <h1>Lamborghini Urus<br>R$ 4.000.000,00</h1>
+        </button>
+        <dialog id="modal8">
+          <h2>Lamborghini Urus</h2>
+          <img src="./imgs/Lambo Urus.png" alt="Lamborghini Urus">
+          <h1>Preço:<br>R$ 4.000.000,00</h1>
+          <a href="./PAGcarros/urus.html"><button>+ Informações</button></a>
+          <button class="close">Fechar</button>
+        </dialog>
+      </div>
+
+      <!-- 9 -->
+      <div class="card">
+        <button data-modal="modal9">
+          <img src="./imgs/BMW i7.png" alt="BMW i7">
+          <h1>BMW i7<br>R$ 1.370.000,00</h1>
+        </button>
+        <dialog id="modal9">
+          <h2>BMW i7</h2>
+          <img src="./imgs/BMW i7.png" alt="BMW i7">
+          <h1>Preço:<br>R$ 1.370.000,00</h1>
+          <a href="./PAGcarros/BMW_i7.html"><button>+ Informações</button></a>
+          <button class="close">Fechar</button>
+        </dialog>
+      </div>
+    </section>
+  </div>
+
+  <div class="encontre-vendedor">
+    <button id="btnVendedor">Encontre seu vendedor ideal 🚗</button>
+  </div>
+
+  <footer>
+    <p>&copy;Gobbo Automoveis | 2025 | Todos Direitos Reservados.</p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // abrir/fechar dialogs
+    const openButtons = document.querySelectorAll('[data-modal]');
+    openButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-modal');
+        const dlg = document.getElementById(id);
+        if (dlg) dlg.showModal();
+      });
+    });
+    const closeButtons = document.querySelectorAll('.close');
+    closeButtons.forEach(btn => btn.addEventListener('click', e => e.target.closest('dialog').close()));
+
+    // SweetAlert questionário (com estilos ajustados)
+    document.getElementById('btnVendedor').addEventListener('click', async () => {
+      const { value: tipo } = await Swal.fire({
+        title: 'Qual tipo de carro você procura?',
+        input: 'select',
+        inputOptions: {
+          luxo: 'Carros de luxo e conforto',
+          suv: 'SUVs grandes e espaçosos',
+          eletrico: 'Carros elétricos ou híbridos',
+          esportivo: 'Esportivos e alto desempenho'
+        },
+        inputPlaceholder: 'Selecione uma opção',
+        confirmButtonText: 'Próximo',
+        confirmButtonColor: '#d4af37',
+        background: '#000',
+        color: '#fff',
+        customClass: { popup: 'swal2-popup' },
+      });
+      if (!tipo) return;
+
+      const { value: orcamento } = await Swal.fire({
+        title: 'Qual é o seu orçamento aproximado?',
+        input: 'select',
+        inputOptions: {
+          '200-500': 'R$ 200 mil a R$ 500 mil',
+          '500-1000': 'R$ 500 mil a R$ 1 milhão',
+          '1000+': 'Acima de R$ 1 milhão'
+        },
+        inputPlaceholder: 'Selecione seu orçamento',
+        confirmButtonText: 'Próximo',
+        confirmButtonColor: '#d4af37',
+        background: '#000',
+        color: '#fff',
+        customClass: { popup: 'swal2-popup' },
+      });
+      if (!orcamento) return;
+
+      const { value: contato } = await Swal.fire({
+        title: 'Como prefere ser contatado?',
+        input: 'select',
+        inputOptions: {
+          whatsapp: 'WhatsApp',
+          email: 'E-mail',
+          telefone: 'Telefone'
+        },
+        inputPlaceholder: 'Selecione uma opção',
+        confirmButtonText: 'Ver resultado',
+        confirmButtonColor: '#d4af37',
+        background: '#000',
+        color: '#fff',
+        customClass: { popup: 'swal2-popup' },
+      });
+      if (!contato) return;
+
+      let vendedor = '';
+      if (tipo === 'luxo' || tipo === 'esportivo') vendedor = 'Arthur (Especialista em veículos premium)';
+      else if (tipo === 'suv') vendedor = 'Beatriz (Especialista em SUVs e conforto)';
+      else if (tipo === 'eletrico') vendedor = 'Lucas (Consultor de veículos elétricos e híbridos)';
+
+      let canal = '';
+      if (contato === 'whatsapp') canal = '📱 WhatsApp: (11) 90000-0001';
+      if (contato === 'email') canal = '📧 E-mail: vendas@gobboautomoveis.com';
+      if (contato === 'telefone') canal = '☎️ Telefone: (11) 4002-8922';
+
+      Swal.fire({
+        title: 'Seu vendedor ideal é:',
+        html: `<h2 style="color:#d4af37; margin-bottom:6px;">${vendedor}</h2>
+               <p style="color:#fff; margin:6px 0 0;">Entre em contato por:</p>
+               <p style="color:#d4af37; font-weight:700; margin-top:6px;">${canal}</p>`,
+        icon: 'success',
+        confirmButtonText: 'Fechar',
+        confirmButtonColor: '#d4af37',
+        background: '#000',
+        color: '#fff',
+        customClass: { popup: 'swal2-popup' },
+      });
+    });
+  </script>
+</body>
+</html>

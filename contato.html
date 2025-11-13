@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contato | Gobbo Automóveis</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background-color: #000;
+      color: #fff;
+      padding-top: 70px;
+    }
+
+    /* ===== TOPO FIXO ===== */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      background-color: rgba(0, 0, 0, 0.95);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      border-bottom: 2px solid #d4af37;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+      z-index: 1000;
+    }
+
+    .logo {
+      color: #d4af37;
+      font-size: 1.6rem;
+      font-weight: bold;
+    }
+
+    .menu a {
+      color: #000;
+      background-color: #d4af37;
+      text-decoration: none;
+      padding: 10px 25px;
+      border-radius: 25px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .menu a:hover {
+      background-color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #d4af37;
+    }
+
+    /* ===== CONTEÚDO ===== */
+    .container {
+      max-width: 700px;
+      margin: 80px auto;
+      background-color: #111;
+      border: 2px solid #d4af37;
+      border-radius: 25px;
+      padding: 40px;
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
+      text-align: center;
+    }
+
+    .container h1 {
+      color: #d4af37;
+      margin-bottom: 10px;
+    }
+
+    .container p {
+      color: #ddd;
+      margin-bottom: 30px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    label {
+      text-align: left;
+      color: #d4af37;
+      font-weight: bold;
+    }
+
+    input, textarea, select {
+      background-color: #000;
+      color: #fff;
+      border: 1.5px solid #d4af37;
+      border-radius: 15px;
+      padding: 12px;
+      font-size: 1rem;
+      width: 100%;
+      outline: none;
+      transition: 0.3s ease;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #fff;
+      box-shadow: 0 0 10px #d4af37;
+    }
+
+    textarea {
+      resize: none;
+      height: 120px;
+    }
+
+    button {
+      background-color: #d4af37;
+      color: #000;
+      border: none;
+      border-radius: 25px;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #d4af37;
+    }
+
+    /* ===== RESPONSIVIDADE ===== */
+    @media (max-width: 600px) {
+      .container {
+        width: 90%;
+        padding: 25px;
+      }
+      .logo { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <h1 class="logo">GOBBO AUTOMÓVEIS</h1>
+    <div class="menu">
+      <a href="./index.html">Início</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Fale Conosco</h1>
+    <p>Tem dúvidas, quer agendar uma visita ou solicitar uma proposta? Envie sua mensagem e entraremos em contato rapidamente.</p>
+
+    <form id="formContato">
+      <label for="nome">Nome completo:</label>
+      <input type="text" id="nome" required>
+
+      <label for="email">E-mail:</label>
+      <input type="email" id="email" required>
+
+      <label for="telefone">Telefone / WhatsApp:</label>
+      <input type="tel" id="telefone">
+
+      <label for="assunto">Assunto:</label>
+      <select id="assunto" required>
+        <option value="">Selecione...</option>
+        <option value="compra">Comprar um veículo</option>
+        <option value="avaliacao">Avaliar meu carro</option>
+        <option value="financiamento">Financiamento</option>
+        <option value="outros">Outros</option>
+      </select>
+
+      <label for="mensagem">Mensagem:</label>
+      <textarea id="mensagem" placeholder="Digite aqui sua mensagem..."></textarea>
+
+      <button type="submit">Enviar Mensagem</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const form = document.getElementById('formContato');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const nome = document.getElementById('nome').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const assunto = document.getElementById('assunto').value;
+      const mensagem = document.getElementById('mensagem').value.trim();
+
+      if (!nome || !email || !assunto || !mensagem) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Campos obrigatórios',
+          text: 'Por favor, preencha todos os campos antes de enviar.',
+          confirmButtonColor: '#d4af37',
+          background: '#000',
+          color: '#fff'
+        });
+        return;
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Mensagem enviada!',
+        html: `<p style="color:#d4af37;">Obrigado, ${nome.split(' ')[0]}!<br>Em breve nossa equipe entrará em contato.</p>`,
+        confirmButtonColor: '#d4af37',
+        background: '#000',
+        color: '#fff'
+      });
+
+      form.reset();
+    });
+  </script>
+</body>
+</html>
